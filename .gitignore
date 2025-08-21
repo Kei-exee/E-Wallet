@@ -6,3 +6,7 @@ dist/
 backend/wallet.db
 *.db
 *.sqlite
+
+# SQLite
+backend/wallet.db*
+*.db*
