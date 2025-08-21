@@ -10,3 +10,7 @@ backend/wallet.db
 # SQLite
 backend/wallet.db*
 *.db*
+
+# SQLite
+backend/wallet.db*
+*.db*
