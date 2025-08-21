@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="login.css">
+    <title>E-Wallet</title>
+</head>
+
+<body>
+
+    <div class="container" id="container">
+        <!--cambio aqui
+        <div class="form-container sign-up">
+            <form>
+                <h1>Crear cuenta</h1>
+                <input type="text" placeholder="Name">
+                <input type="email" placeholder="Email">
+                <input type="password" placeholder="Password">
+                <button>Crear cuenta</button>
+            </form>
+        </div> -->
+
+        <!--este en lugar del de arriba, este es nuevo-->
+        <div class="form-container sign-up">
+            <form id="formSignUp">
+                <h1>Crear cuenta</h1>
+                <input type="text" id="signupName" name="name" placeholder="Name" required>
+                <input type="email" id="signupEmail" name="email" placeholder="Email" required>
+                <input type="password" id="signupPassword" name="password" placeholder="Password" required>
+                <p id="signupMsg" style="color:#27ae60;margin:8px 0"></p>
+                <p id="signupErr" style="color:#e74c3c;margin:8px 0"></p>
+                <button type="submit">Crear cuenta</button>
+            </form>
+        </div>
+
+        <div class="form-container sign-in">
+            <form id="formSignIn">
+                <h1>Iniciar Sesión</h1>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <p id="loginError" class="error" style="color:#e74c3c;margin:8px 0"></p>
+                <button type="submit">Iniciar sesión</button>
+            </form>
+
+
+        </div>
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>Bienvenido de nuevo!</h1> <!--iniciar sesion-->
+                    <p>Ingresa tus datos personales para usar todas las funciones del sitio</p>
+                    <button class="hidden" id="login">Iniciar sesion</button>
+                </div>
+                <div class="toggle-panel toggle-right"> <!-- Registrarse-->
+                    <h1>Hola, amigo!</h1>
+                    <p>Regístrate con tus datos personales para usar todas las funciones del sitio</p>
+                    <button class="hidden" id="register">Crear cuenta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+
+</html>
