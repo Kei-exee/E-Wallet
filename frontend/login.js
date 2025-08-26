@@ -1,202 +1,152 @@
-// Espera a que el HTML esté cargado para evitar null en los getElementById
-document.addEventListener("DOMContentLoaded", () => {
-  // ========== TOGGLE ENTRE VISTAS (login <-> registro) ==========
-  const container   = document.getElementById("container");
-  const registerBtn = document.getElementById("register"); // botón que muestra el registro
-  const loginBtn    = document.getElementById("login");    // botón que vuelve al login
+// Login.js
+// Objetivo: manejar el cambio de vista entre login y registro, registrar usuarios,
+// hacer login, guardar token y perfil en localStorage y redirigir a wallet.html.
 
-  // Si existen los botones, agregamos eventos
-  if (registerBtn) registerBtn.addEventListener("click", () => container?.classList.add("active"));
-  if (loginBtn)    loginBtn.addEventListener("click", () => container?.classList.remove("active"));
 
-  // ========== REGISTRO (opcional) ==========
-  // Requiere en el HTML: formSignUp, signupName, signupEmail, signupPassword
-  const formUp    = document.getElementById("formSignUp");
-  const signupErr = document.getElementById("signupErr");  // <p> para mostrar errores
-  const signupMsg = document.getElementById("signupMsg");  // <p> para mostrar éxito
+(() => {
+  const API = "http://localhost:3000";
 
-  if (formUp) {
-    formUp.addEventListener("submit", async (e) => {
-      e.preventDefault(); // evita recarga del navegador
-      if (signupErr) signupErr.textContent = "";
-      if (signupMsg) signupMsg.textContent = "";
+  // Espero a que el HTML esté listo antes de tocar el DOM
+  document.addEventListener("DOMContentLoaded", () => {
 
-      // Leemos y normalizamos datos
-      const name     = document.getElementById("signupName").value.trim();
-      const email    = document.getElementById("signupEmail").value.trim().toLowerCase();
-      const password = document.getElementById("signupPassword").value;
+    // 1) Toggle login <-> registro
+    // =========================
+    // Si hago clic en "Registrarse" muestro el form de registro.
+    // Si hago clic en "Iniciar sesión" vuelvo al form de login.
+    const container   = document.getElementById("container");
+    const registerBtn = document.getElementById("register");
+    const loginBtn    = document.getElementById("login");
 
-      try {
-        // Llamada al backend para crear el usuario
-        const res  = await fetch("http://localhost:3000/api/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password })
-        });
+    if (registerBtn) registerBtn.addEventListener("click", () => container?.classList.add("active"));
+    if (loginBtn)    loginBtn.addEventListener("click", () => container?.classList.remove("active"));
 
-        // Intentamos leer JSON. Si falla, devolvemos objeto vacío para no romper
-        const data = await res.json().catch(()=> ({}));
-        console.log("[register]", res.status, data);
 
-        // Si el backend respondió con error, mostramos mensaje y salimos
-        if (!res.ok) {
-          if (signupErr) signupErr.textContent = data.message || data.error || "No se pudo registrar";
-          return;
-        }
+    // 2) Registro de usuario
+    // =========================
+    // Envio name, email, password al backend. Si está ok muestro éxito y vuelvo a login.
+    const formUp    = document.getElementById("formSignUp");
+    const signupErr = document.getElementById("signupErr");
+    const signupMsg = document.getElementById("signupMsg");
 
-        // Registro OK. Mostramos feedback, limpiamos formulario y volvemos a la vista de login
-        if (signupMsg) signupMsg.textContent = "Cuenta creada. Ahora inicia sesión";
-        formUp.reset();
-        container?.classList.remove("active");
-      } catch (err) {
-        // Error de red u otro problema no controlado
-        console.error("[register] error", err);
-        if (signupErr) signupErr.textContent = "Error de conexión";
-      }
-    });
-  }
+    if (formUp) {
+      formUp.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (signupErr) signupErr.textContent = "";
+        if (signupMsg) signupMsg.textContent = "";
 
-  // ========== LOGIN ==========
-  // Requiere en el HTML: formSignIn y un <p id="loginError"> para mensajes
-  const formIn     = document.getElementById("formSignIn");
-  const loginError = document.getElementById("loginError");
+        // Tomo valores del formulario. Normalizo el email en minúsculas.
+        const name     = document.getElementById("signupName").value.trim();
+        const email    = document.getElementById("signupEmail").value.trim().toLowerCase();
+        const password = document.getElementById("signupPassword").value;
 
-  if (formIn) {
-    formIn.addEventListener("submit", async (e) => {
-      e.preventDefault(); // evita recarga
-      if (loginError) loginError.textContent = "";
-
-      // Leemos credenciales
-      const email    = formIn.email.value.trim().toLowerCase();
-      const password = formIn.password.value;
-
-      try {
-        // Llamamos al backend para autenticar
-        const res  = await fetch("http://localhost:3000/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-
-        // Intentamos parsear JSON
-        const data = await res.json().catch(()=> ({}));
-        console.log("[login]", res.status, data);
-
-        // Si hay error de credenciales u otro, mostramos mensaje y salimos
-        if (!res.ok) {
-          if (loginError) loginError.textContent = data.message || data.error || "Correo o contraseña incorrectos";
-          return;
-        }
-
-        // 1. Guardamos el token si el backend lo envía
-        if (data.token) {
-          localStorage.setItem("authToken", data.token);
-        } else {
-          console.warn("[login] no vino token en la respuesta");
-        }
-
-        // 2. Conseguimos el usuario
-        //    Tu front acepta dos formatos:
-        //    A) { token, user: {id,name,email} }
-        //    B) { id, name, email }  sin token ni user
-        let user = data.user || (data.id && data.email ? { id: data.id, name: data.name, email: data.email } : null);
-
-        // 3. Si no vino el user pero sí vino token, intentamos pedirlo a /api/me
-        if (!user && data.token) {
-          const me = await fetch("http://localhost:3000/api/me", {
-            headers: { Authorization: "Bearer " + data.token }
+        try {
+          // Pido al backend crear el usuario
+          const res  = await fetch(`${API}/api/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password })
           });
-          const payload = await me.json().catch(()=> ({}));
-          console.log("[/api/me]", me.status, payload);
-          if (me.ok && payload.user) user = payload.user;
+
+          // Intento parsear la respuesta como JSON
+          //parsear - parsea el cuerpo HTTP a objeto JS
+          //leer y convertir un texto siguiendo reglas para obtener datos con los que el programa pueda trabajar
+          const data = await res.json().catch(() => ({}));
+          console.log("[register] status:", res.status, data);
+
+          // Si el backend dijo error, lo muestro
+          if (!res.ok) {
+            if (signupErr) signupErr.textContent = data.message || data.error || "No se pudo registrar";
+            return;
+          }
+
+          // Si salió bien: aviso, limpio el form y regreso a la vista de login
+          if (signupMsg) signupMsg.textContent = "Cuenta creada. Ahora inicia sesión";
+          formUp.reset();
+          container?.classList.remove("active");
+        } catch (err) {
+          console.error("[register] error:", err);
+          if (signupErr) signupErr.textContent = "Error de conexión";
         }
+      });
+    }
 
-        // 4. Si aún no tenemos user, no seguimos
-        if (!user) {
-          if (loginError) loginError.textContent = "No se pudo obtener el perfil";
-          return;
+    // =========================
+    // 3) Login
+    // =========================
+    // Envio email y password al backend. Guardo token y perfil. Redirijo a wallet.html.
+    const formIn     = document.getElementById("formSignIn");
+    const loginError = document.getElementById("loginError");
+
+    if (formIn) {
+      formIn.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (loginError) loginError.textContent = "";
+
+        // Credenciales del formulario
+        const email    = formIn.email.value.trim().toLowerCase();
+        const password = formIn.password.value;
+
+        try {
+          // Llamo al backend para autenticar
+          const res = await fetch(`${API}/api/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          });
+
+          // Log de diagnóstico por si el server devuelve HTML o algo raro
+          const ct  = res.headers.get("content-type") || "";
+          const raw = await res.clone().text();
+          console.log("[login] status:", res.status, "ct:", ct, "raw preview:", raw.slice(0, 200));
+
+          // Intento leer JSON. Si no es JSON, data queda {}
+          let data = {};
+          try { data = await res.json(); } catch { data = {}; }
+
+          // Si el backend respondió error, aviso al usuario
+          if (!res.ok) {
+            if (loginError) loginError.textContent = data.message || data.error || "Correo o contraseña incorrectos";
+            return;
+          }
+
+          // Acepto distintos formatos de respuesta para evitar romper el flujo
+          // Formato ideal: { token, user: { id, name, email } }
+          // Alternativa: { id, name, email } sin user
+          let token = data.token || "";
+          let user  = null;
+
+          if (data.user && data.user.email) user = data.user; // caso ideal
+          if (!user && data.id && data.email) user = { id: data.id, name: data.name, email: data.email }; // alterno
+
+          // Si tengo token pero no user, intento recuperar el perfil con /api/me
+          if (!user && token) {
+            try {
+              const me = await fetch(`${API}/api/me`, {
+                headers: { Authorization: "Bearer " + token }
+              });
+              const payload = await me.json().catch(() => ({}));
+              if (me.ok && payload.user) user = payload.user;
+            } catch {}
+          }
+
+          // Si a esta altura no tengo user, algo raro pasó en la respuesta
+          if (!user) {
+            if (loginError) loginError.textContent = "Respuesta inválida del servidor";
+            console.warn("[login] formato inesperado:", data);
+            return;
+          }
+
+          // Guardo token y perfil para usarlos en el resto de la app
+          if (token) localStorage.setItem("authToken", token);
+          localStorage.setItem("sessionUser", JSON.stringify(user));
+
+          // Entro a la app
+          window.location.href = "wallet.html";
+        } catch (err) {
+          console.error("[login] error:", err);
+          if (loginError) loginError.textContent = "No se pudo conectar con el servidor";
         }
-
-        // 5. Guardamos la sesión y redirigimos a la app
-        localStorage.setItem("sessionUser", JSON.stringify(user));
-        console.log("[login] guardado en localStorage OK");
-        window.location.href = "wallet.html";
-      } catch (err) {
-        // Error de red u otro problema no controlado
-        console.error("[login] error", err);
-        if (loginError) loginError.textContent = "No se pudo conectar con el servidor";
-      }
-    });
-  }
-});
-
-
-//document.addEventListener("DOMContentLoaded", () => {
-  // toggle
-  
- // const container   = document.getElementById("container");
- // const registerBtn = document.getElementById("register");
-  //const loginBtn    = document.getElementById("login");
- // if (registerBtn) registerBtn.addEventListener("click", () => container?.classList.add("active"));
- // if (loginBtn)    loginBtn.addEventListener("click", () => container?.classList.remove("active"));
-
-  // registro
-  //const formUp = document.getElementById("formSignUp");
-  //const signupErr = document.getElementById("signupErr");
-  //const signupMsg = document.getElementById("signupMsg");
-  //if (formUp) {
-    //formUp.addEventListener("submit", async (e) => {
-      //e.preventDefault();
-      //signupErr && (signupErr.textContent = "");
-      //signupMsg && (signupMsg.textContent = "");
-     // const name = document.getElementById("signupName").value.trim();
-     // const email = document.getElementById("signupEmail").value.trim().toLowerCase();
-     // const password = document.getElementById("signupPassword").value;
-     // const res = await fetch("http://localhost:3000/api/register", {
-       // method: "POST",
-       // headers: { "Content-Type": "application/json" },
-       // body: JSON.stringify({ name, email, password })
-     // });
-     // const data = await res.json();
-     // if (!res.ok) { signupErr && (signupErr.textContent = data.message || "No se pudo registrar"); return; }
-      //signupMsg && (signupMsg.textContent = "Cuenta creada. Ahora inicia sesión");
-     // formUp.reset();
-      //container?.classList.remove("active");
-   // });
-  //}
-
-  // login
- // const formIn = document.getElementById("formSignIn");
-  //const loginError = document.getElementById("loginError");
-  //if (formIn) {
-    //formIn.addEventListener("submit", async (e) => {
-     // e.preventDefault();
-     // loginError && (loginError.textContent = "");
-     // const email = formIn.email.value.trim().toLowerCase();
-     // const password = formIn.password.value;
-
-     // const res = await fetch("http://localhost:3000/api/login", {
-       // method: "POST",
-       // headers: { "Content-Type": "application/json" },
-       // body: JSON.stringify({ email, password })
-     // }); 
-     // const data = await res.json();
-
-      //if (!res.ok) { loginError && (loginError.textContent = data.message || "Correo o contraseña incorrectos"); return; }
-
-      // guarda token
-     // if (data.token) localStorage.setItem("authToken", data.token);
-
-      // asegura user
-     // let user = data.user || null;
-     // if (!user && data.token) {
-      //  const me = await fetch("http://localhost:3000/api/me", { headers: { Authorization: "Bearer " + data.token } });
-       // if (me.ok) { const payload = await me.json(); user = payload.user || null; }
-     // }
-      //if (!user) { loginError && (loginError.textContent = "No se pudo obtener el perfil"); return; }
-
-     // localStorage.setItem("sessionUser", JSON.stringify(user));
-     // window.location.href = "wallet.html";
-   // });
- // }
-//}); 
+      });
+    }
+  });
+})();
