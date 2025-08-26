@@ -1,8 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
 /* =========================
-   Variables de tema
+   VARIABLES DE TEMA
    ========================= */
+/* Definí variables CSS para colores principales y así puedo
+   cambiar entre tema claro y oscuro más fácil */
 :root{
   --background-color: #fff;
   --text-title-color: #053D4E;
@@ -17,6 +19,7 @@
   --border-color: #E6E9ED;
 }
 
+/* Tema oscuro: reescribo las variables con colores oscuros */
 body.dark{
   --background-color: #0f1216;
   --text-title-color: #cfe5ff;
@@ -31,12 +34,12 @@ body.dark{
   --border-color: #2a2f36;
 }
 
-/* Transiciones suaves de tema */
+/* Transición suave cuando cambio de tema */
 html, body, header, .sidebar, main{
   transition: background-color .25s, color .25s, border-color .25s;
 }
 
-/* Invertir iconos en dark */
+/* Invertir iconos para que se vean en modo oscuro */
 body.dark .right img,
 body.dark .sidebar img,
 body.dark .brand .logo{
@@ -44,8 +47,9 @@ body.dark .brand .logo{
 }
 
 /* =========================
-   Reset
+   RESET
    ========================= */
+/* Quito márgenes/paddings por defecto y defino fuente Nunito */
 *{
   margin: 0;
   padding: 0;
@@ -54,7 +58,7 @@ body.dark .brand .logo{
 }
 
 /* =========================
-   Layout
+   LAYOUT GENERAL
    ========================= */
 body{
   background-color: var(--background-color);
@@ -63,6 +67,7 @@ body{
   height: 100vh;
 }
 
+/* HEADER (barra superior) */
 header{
   position: fixed;
   top: 0; left: 0;
@@ -75,7 +80,7 @@ header{
   background-color: var(--background-color);
 }
 
-/* Header izquierda */
+/* Parte izquierda del header (menú hamburguesa + logo) */
 .left{
   display: flex;
   align-items: center;
@@ -102,7 +107,7 @@ header{
   background-color: var(--menu-color);
   transition: all .2s ease;
 }
-/* Animación al abrir */
+/* animación cuando se abre el menú */
 .menu.menu-toggle div:first-child{
   width: 40%;
   transform: rotate(-35deg) translate(-30%, 175%);
@@ -112,7 +117,7 @@ header{
   transform: rotate(35deg) translate(-30%, -160%);
 }
 
-/* Marca */
+/* Logo y nombre de la app */
 .brand{
   display: flex;
   align-items: center;
@@ -125,7 +130,7 @@ header{
   color: var(--text-title-color);
 }
 
-/* Header derecha */
+/* Parte derecha del header (nombre usuario + iconos) */
 #userName{
   font-size: 1.2rem;
   font-weight: 900;
@@ -146,13 +151,15 @@ header{
 .right img{ width: 1.5rem; margin: .5rem; }
 .right .user{ width: 2.1rem; border-radius: 50%; }
 
-/* Sidebar */
+/* =========================
+   SIDEBAR
+   ========================= */
 .sidebar{
   position: fixed;
   top: 0; left: 0;
   z-index: 100;
-  margin-top: 4rem;            /* alto header */
-  width: 4rem;
+  margin-top: 4rem; /* dejo espacio para el header */
+  width: 4rem;      /* sidebar colapsado */
   height: 100%;
   padding: 1.1rem 0;
   overflow-y: auto;
@@ -160,7 +167,10 @@ header{
   transition: width .5s ease;
   border-right: 1px solid var(--border-color);
 }
+/* ancho del sidebar cuando está expandido */
 .sidebar.menu-toggle{ width: 18.75rem; }
+
+/* enlaces del sidebar */
 .sidebar a{
   display: flex;
   align-items: center;
@@ -178,6 +188,7 @@ header{
   color: var(--text-selected-color);
   background-color: var(--background-selected);
 }
+/* link especial "inicio" con borde abajo */
 .sidebar a.inicio{
   padding: 1rem .7rem;
   border-bottom: 1px solid var(--border-color);
@@ -185,21 +196,24 @@ header{
 }
 .sidebar img{ width: 1.6rem; }
 
-/* Main */
+/* =========================
+   MAIN
+   ========================= */
 main{
-  margin-top: 4rem;   /* alto header */
-  margin-left: 4rem;  /* ancho sidebar cerrado */
+  margin-top: 4rem;   /* alto del header */
+  margin-left: 4rem;  /* ancho del sidebar cerrado */
   padding: 2rem;
   transition: padding-left .5s ease;
 }
 main.menu-toggle{ margin-left: 18.75rem; }
 
-/* Responsive */
+/* responsive: en pantallas chicas oculto sidebar y botones */
 @media (max-width: 500px){
   .right .icons-header{ display: none; }
   .sidebar{ width: 0; }
   main{ margin-left: 0; }
   main.menu-toggle{ transition: .3s ease; }
+  /* cambio la animación del menú hamburguesa */
   .menu.menu-toggle div:first-child{
     width: 100%;
     transform: rotate(-45deg) translate(-.2rem, 1.3rem);
@@ -211,10 +225,10 @@ main.menu-toggle{ margin-left: 18.75rem; }
 }
 
 /* =========================
-   Cards apiladas
+   CARDS APILADAS (efecto tarjetas)
    ========================= */
 
-/* Colores por tarjeta */
+/* colores de frente de cada tarjeta */
 .card-b .flip-card-front{
   background: linear-gradient(135deg, #3b82f6, #0ea5e9);
   color: #fff;
@@ -224,7 +238,7 @@ main.menu-toggle{ margin-left: 18.75rem; }
   color: #fff;
 }
 
-/* Stack tamaño */
+/* tamaño de stack */
 .card-stack{
   --card-w: 340px;
   --card-h: 200px;
@@ -234,7 +248,7 @@ main.menu-toggle{ margin-left: 18.75rem; }
   margin: 0 auto;
 }
 
-/* Superposición dentro del stack */
+/* cómo se superponen las cards */
 .card-stack .flip-card{
   position: absolute;
   inset: 0;
@@ -244,7 +258,7 @@ main.menu-toggle{ margin-left: 18.75rem; }
   transition: transform .25s ease, box-shadow .25s ease;
 }
 
-/* Desactivar flip dentro del stack */
+/* dentro de un stack desactivo el efecto flip tradicional */
 .card-stack .flip-card-inner{
   width: 100%;
   height: 100%;
@@ -257,40 +271,34 @@ main.menu-toggle{ margin-left: 18.75rem; }
   border-radius: inherit;
 }
 
-/* Frente/atrás */
+/* card que está al frente */
 .flip-card.is-front{
   z-index: 2;
   transform: translate(0,0) scale(1);
   box-shadow: 0 12px 26px rgba(0,0,0,.22);
 }
+/* card que queda atrás */
 .flip-card.is-back{
   z-index: 1;
   transform: translate(18px, 10px) scale(.965);
   box-shadow: 0 10px 24px rgba(0,0,0,.18);
 }
-
-/* B más a la derecha cuando está atrás */
+/* tarjeta B queda más corridita cuando está atrás */
 .card-b.is-back{
   transform: translate(40px, 10px) scale(.965);
 }
 
-/* Responsive del stack */
+/* responsive: cards más pequeñas */
 @media (max-width: 600px){
   .card-stack{ --card-w: 300px; --card-h: 180px; }
   .flip-card.is-back{ transform: translate(14px, 8px) scale(.968); }
 }
 
 /* =========================
-   Base flip-card
+   BASE FLIP-CARD
    ========================= */
-   /*
-.flip-card{
-  margin-top: 100px;
-  background-color: transparent;
-  perspective: 1000px;
-  color: #fff;
-}*/
 
+/* lados de la tarjeta */
 .flip-card-front,
 .flip-card-back{
   position: absolute;
@@ -304,12 +312,12 @@ main.menu-toggle{ margin-left: 18.75rem; }
   border-radius: 1rem;
   box-shadow: 0 8px 14px 0 rgba(0,0,0,.2);
 }
-/* Fondo por defecto si no hay card-a/card-b */
+/* color base si no le doy estilo con card-a/card-b */
 .flip-card-front{ background-color: #171717; }
 .flip-card-back { background-color: #171717; transform: rotateY(180deg); }
 
 /* =========================
-    posiciones
+   POSICIONES DE ELEMENTOS EN LA TARJETA
    ========================= */
 .heading_8264{
   position: absolute;
@@ -329,6 +337,7 @@ main.menu-toggle{ margin-left: 18.75rem; }
   font-size: .6em;
 }
 
+/* este "valid_thru" está raro, parece mal posicionado */
 .valid_thru{
   position: absolute;
   font-weight: bold;
