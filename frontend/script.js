@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       async function convertAmount({ from, to, amount }) {
-        // proveedor 1
+        //Selección de proveedor 1: USO DE API
         try {
           const url1 = `https://api.exchangerate.host/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}&places=6`;
           const r1 = await fetch(url1, { cache: 'no-store' });
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         } catch {}
 
-        // proveedor 2
+        //Selección de proveedor 2: USO DE API
         try {
           const url2 = `https://open.er-api.com/v6/latest/${encodeURIComponent(from)}`;
           const r2 = await fetch(url2, { cache: 'no-store' });
