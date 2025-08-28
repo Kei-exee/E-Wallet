@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       async function convertAmount({ from, to, amount }) {
-        //Selección de proveedor 1: USO DE API
+        //Selección de proveedor 1: USO DE API //api de uso público
         try {
           const url1 = `https://api.exchangerate.host/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}&places=6`;
           const r1 = await fetch(url1, { cache: 'no-store' });
