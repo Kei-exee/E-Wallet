@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         } catch {}
 
-        //Selección de proveedor 2: USO DE API
+        //Selección de proveedor 2: USO DE API //api de uso público
         try {
           const url2 = `https://open.er-api.com/v6/latest/${encodeURIComponent(from)}`;
           const r2 = await fetch(url2, { cache: 'no-store' });
