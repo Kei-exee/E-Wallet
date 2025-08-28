@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     a.classList.toggle('selected', a.getAttribute('href') === here);
   });
 
-  // 3) Tema oscuro o claro
+  // 3) Esta parte da la opción de Tema oscuro o claro
   const darkBtn = document.getElementById('darkToggle');
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'dark') document.body.classList.add('dark');
